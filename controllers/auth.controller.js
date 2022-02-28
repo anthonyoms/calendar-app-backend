@@ -1,16 +1,75 @@
 import { response } from "express";
+import bcrypt from "bcryptjs";
+import Usuario from "../models/Usuario";
+import { generarJwt } from "../helpers/generar-jwt";
 
+export const crearUsuario = async (req, res = response) => {
+  const { email, password } = req.body;
+  try {
+    let usuario = await Usuario.findOne({ email });
 
-export const crearUsuario = (req, res = response) => {
-  const { name, email, password } = req.body;
+    if (usuario) {
+      return res
+        .status(400)
+        .json({ ok: false, msg: "Un usuario Existe con este correo" });
+    }
+    usuario = new Usuario(req.body);
 
-  res.status(201).json({ ok: false, msg: "registro", name, email, password });
+    //Encriptar contaseña
+    const salt = bcrypt.genSaltSync();
+    usuario.password = bcrypt.hashSync(password, salt);
+
+    await usuario.save();
+
+    //Generar JWT
+    const token = await generarJwt(usuario.id, usuario.name);
+    res.status(201).json({
+      ok: false,
+      uid: usuario.id,
+      name: usuario.name,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Por favor comunicarse con el administrador",
+    });
+  }
 };
 
-export const loginUsuario = (req, res = response) => {
-  const { name, email } = req.body;
+export const loginUsuario = async (req, res = response) => {
+  const { email, password } = req.body;
 
-  res.json({ ok: false, msg: "login", name, email });
+  try {
+    const usuario = await Usuario.findOne({ email });
+
+    if (!usuario) {
+      return res
+        .status(400)
+        .json({ ok: false, msg: "El usuario no existe con este email" });
+    }
+
+    //Confirmar passwords
+    const validPassword = bcrypt.compareSync(password, usuario.password);
+    if (!validPassword) {
+      return res.status(400).json({ ok: false, msg: "Password incorrecto" });
+    }
+    //Generar token
+    const token = await generarJwt(usuario.id, usuario.name);
+    res.json({
+      ok: false,
+      uid: usuario.id,
+      name: usuario.name,
+      token,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: "Por favor comunicarse con el administrador",
+    });
+  }
 };
 
 export const revalidarToken = (req, res) => {
