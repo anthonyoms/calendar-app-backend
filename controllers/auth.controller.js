@@ -72,6 +72,9 @@ export const loginUsuario = async (req, res = response) => {
   }
 };
 
-export const revalidarToken = (req, res) => {
-  res.json({ ok: false, msg: "renew" });
+export const revalidarToken = async (req, res) => {
+  const { uid, name } = req;
+
+  const token = await generarJwt(uid, name);
+  res.json({ ok: true, token });
 };

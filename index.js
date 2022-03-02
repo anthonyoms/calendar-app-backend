@@ -1,7 +1,9 @@
-import "dotenv/config";
 import express from "express";
+import "dotenv/config";
+import cors from "cors";
 import { dbConnection } from "./database/config";
 import routerAuth from "./routes/auth.routes";
+import routerEvents from "./routes/events.routes";
 
 //Crear el servidor de express
 
@@ -11,6 +13,9 @@ const app = express();
 
 dbConnection();
 
+//CORS
+app.use(cors());
+
 //Directorio Publico
 
 app.use(express.static("public"));
@@ -19,6 +24,7 @@ app.use(express.json());
 
 //Rutas
 app.use("/api/auth", routerAuth);
+app.use("/api/events", routerEvents);
 //TODO: crud :Eventos
 
 //Escuchar peticiones
