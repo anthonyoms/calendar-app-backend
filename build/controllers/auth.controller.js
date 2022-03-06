@@ -42,7 +42,7 @@ const crearUsuario = async (req, res = _express.response) => {
 
     const token = await (0, _generarJwt.generarJwt)(usuario.id, usuario.name);
     res.status(201).json({
-      ok: false,
+      ok: true,
       uid: usuario.id,
       name: usuario.name,
       token
@@ -89,7 +89,7 @@ const loginUsuario = async (req, res = _express.response) => {
 
     const token = await (0, _generarJwt.generarJwt)(usuario.id, usuario.name);
     res.json({
-      ok: false,
+      ok: true,
       uid: usuario.id,
       name: usuario.name,
       token
@@ -113,6 +113,8 @@ const revalidarToken = async (req, res) => {
   const token = await (0, _generarJwt.generarJwt)(uid, name);
   res.json({
     ok: true,
+    uid,
+    name,
     token
   });
 };
