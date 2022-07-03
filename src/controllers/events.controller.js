@@ -94,8 +94,4 @@ export const elimarEvento = async (req, res) => {
       msg: "Hable con el administrador",
     });
   }
-  res.json({
-    ok: true,
-    msg: "elimarEvento",
-  });
 };
